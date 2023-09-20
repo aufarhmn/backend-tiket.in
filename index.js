@@ -26,6 +26,7 @@ app.use(cors({ origin: '*' }));
 app.get("/", (req, res) => {
   res.send("BACKEND TIKET.IN");
 });
+app.use("/user", require("./src/routes/user"));
 
 // ERROR HANDLING
 app.use((req, res, next) => {
