@@ -104,8 +104,7 @@ exports.activateUser = (req, res) => {
                 }
 
                 res.status(200).json({
-                    message: "User activated successfully.",
-                    user: user,
+                    message: "User activated successfully."
                 });
             })
             .catch((err) => {
@@ -115,4 +114,52 @@ exports.activateUser = (req, res) => {
                 });
             });
     });
+};
+
+exports.loginUser = (req, res) => {
+    const { email, password } = req.body;
+
+    User.findOne({ email: email })
+        .then((user) => {
+            if (!user) {
+                return res.status(401).json({
+                    message: "Authentication failed!",
+                });
+            }
+
+            bcrypt.compare(password, user.password, (err, result) => {
+                if (err) {
+                    return res.status(401).json({
+                        message: "Authentication failed!",
+                    });
+                }
+
+                if (result) {
+                    const token = jwt.sign(
+                        {
+                            email: user.email,
+                            userId: user._id,
+                        },
+                        process.env.JWT_SECRET,
+                        {
+                            expiresIn: "1h",
+                        }
+                    );
+
+                    return res.status(200).cookie("Auth", token).json({
+                        message: "Authentication successful!"
+                    });
+                }
+
+                res.status(401).json({
+                    message: "Authentication failed!",
+                });
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error occurred!",
+                error: err,
+            });
+        });
 };

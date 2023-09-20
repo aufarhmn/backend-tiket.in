@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema(
             type: String,
             default: "SUBMITTED"
         },
+        role: {
+            type: String,
+            default: "USER"
+        }
     },
 );
 
