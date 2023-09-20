@@ -9,6 +9,10 @@ const app = express();
 const dotenv = require("dotenv");
 dotenv.config({ path: "./config.env" });
 
+// MONGO CONFIG
+const mongoConnect = require("./src/config/mongo");
+mongoConnect();
+
 // BODY AND COOKIE PARSER
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
