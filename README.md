@@ -23,11 +23,15 @@ npm run dev
 ```
 4. Access the API via `http://localhost:5000`
 
-## Use Case Diagram
+## Important Diagram
 
 For a visual representation of the use cases and interactions supported by the "tiket.in" API, please refer to the following diagram:
 
 ![Use Case Diagram](/images/UseCase.png)
+
+For Database Schema, please refer to the following Entity Relationship Diagram:
+
+![ERD](/images/ERD.png)
 
 ## License
 
