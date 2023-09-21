@@ -2,6 +2,8 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const { drive } = require("../config/drive");
+const { Readable } = require("stream");
 
 // NODEMAILER
 const transporter = nodemailer.createTransport({
@@ -21,10 +23,12 @@ exports.registerUser = async (req, res) => {
         .then((user) => {
             if (user && user.email === email) {
                 return res.status(409).json({
-                    message: "Phone Number already registered!",
+                    message: "Email already registered!",
                 });
             } else {
-                const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: "1h" });
+                const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+                    expiresIn: "1h",
+                });
 
                 bcrypt.hash(password, 10, (err, hashedPassword) => {
                     if (err) {
@@ -104,7 +108,7 @@ exports.activateUser = (req, res) => {
                 }
 
                 res.status(200).json({
-                    message: "User activated successfully."
+                    message: "User activated successfully.",
                 });
             })
             .catch((err) => {
@@ -147,7 +151,7 @@ exports.loginUser = (req, res) => {
                     );
 
                     return res.status(200).cookie("Auth", token).json({
-                        message: "Authentication successful!"
+                        message: "Authentication successful!",
                     });
                 }
 
@@ -163,3 +167,277 @@ exports.loginUser = (req, res) => {
             });
         });
 };
+
+exports.forgotPassword = (req, res) => {
+    const { email, password } = req.body;
+
+    User.findOne({ email: email })
+        .then((user) => {
+            if(!user){
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            }
+
+            bcrypt.hash(password, 10, (err, hashedPassword) => {
+                if (err) {
+                    return res.status(500).json({
+                        message: "Error occurred!",
+                        error: err,
+                    });
+                }
+
+                user.password = hashedPassword;
+                user.status = "SUBMITTED";
+                
+                user.save()
+                    .then((result) => {
+                        const token = jwt.sign(
+                            {
+                                userId: user._id,
+                            },
+                            process.env.JWT_SECRET,
+                            {
+                                expiresIn: "1h",
+                            }
+                        );
+
+                        transporter
+                            .sendMail({
+                                from: `tiket.in <${process.env.EMAIL}>`,
+                                to: email,
+                                subject: "tiket.in: Password Reset",
+                                html: `${process.env.CLIENT_URL}/user/reset-password?token=${token}`,
+                            })
+                            .then(() => {
+                                res.status(200).json({
+                                    message:
+                                        "Password reset successfully! Reset password email sent.",
+                                });
+                            })
+                            .catch((err) => {
+                                res.status(500).json({
+                                    message: "Error while sending email!",
+                                    error: err,
+                                });
+                            });
+                    })
+                    .catch((err) => {
+                        res.status(500).json({
+                            message: "Error updating password!",
+                            error: err,
+                        });
+                    });
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error occurred!",
+                error: err,
+            });
+        });
+};
+
+exports.activateNewPassword = (req, res) => {
+    const resetToken = req.query.token;
+    
+    jwt.verify(resetToken, process.env.JWT_SECRET, (err, decodedToken) => {
+        if(err){
+            return res.status(401).json({
+                message: "Invalid or expired reset token.",
+            });
+        }
+
+        User.findByIdAndUpdate(decodedToken.userId, { $set: { status: "VERIFIED" } }, { new: true })
+            .then((user) => {
+                if(!user){
+                    return res.status(404).json({
+                        message: "User not found!",
+                    });
+                }
+
+                res.status(200).json({
+                    message: "Reset password successfully!",
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error retrieving user!",
+                    error: err,
+                });
+            });
+    });
+};
+
+exports.editUser = (req, res) => {
+    const allowedFields = [
+        "name", 
+        "phoneNumber", 
+        "email"
+    ];
+
+    const updatedFields = {};
+
+    for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+            updatedFields[field] = req.body[field];
+        }
+    }
+
+    if (Object.keys(updatedFields).length === 0) {
+        return res
+            .status(400)
+            .json({ message: "No valid fields provided for update!" });
+    }
+
+    if (updatedFields.email) {
+        User.find({ email: updatedFields.email })
+            .then((existingUser) => {
+                if (existingUser.length > 0) {
+                    return res.status(400).json({
+                        message: "Email is already in use by another user!",
+                    });
+                }
+                updateUser();
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error checking email existence!",
+                    error: err,
+                });
+            });
+    } else {
+        updateUser();
+    }
+
+    function updateUser() {
+        User.findByIdAndUpdate(
+            req.userId,
+            { $set: updatedFields },
+            { new: true }
+        )
+            .then((user) => {
+                if (!user) {
+                    return res
+                        .status(404)
+                        .json({ message: "User not found!" });
+                }
+
+                res.status(200).json({
+                    message: "User updated successfully!",
+                    user: user,
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error updating user!",
+                    error: err,
+                });
+            });
+    }
+};
+
+exports.editProfilePhoto = (req, res) => {
+    User.findById(req.userId)
+        .then(async (user) => {
+            let fileBuffer = Readable.from([req.file.buffer]);
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            } else if (!req.file) {
+                return res.status(400).json({
+                    message: "No file uploaded!",
+                });
+            } else {
+                try {
+                    const fileMetadata = {
+                        name: req.userId + "-" + Date.now(),
+                        parents: ["1ZDynOj57_3KoXsGIZ-GSxPCgfoucTSl-"],
+                    };
+
+                    const media = {
+                        mimeType: "image/jpeg" || "image/png" || "image/jpg",
+                        body: fileBuffer,
+                    };
+
+                    const response = await drive.files.create({
+                        resource: fileMetadata,
+                        media: media,
+                        fields: "id",
+                    });
+
+                    await drive.permissions.create({
+                        fileId: response.data.id,
+                        requestBody: {
+                            role: "reader",
+                            type: "anyone",
+                        },
+                    });
+
+                    user.profilePhoto = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+                    await user.save();
+                    res.status(200).json({
+                        message: "Profile picture updated successfully!",
+                        profilePhoto: user.profilePhoto,
+                    });
+                } catch (err) {
+                    console.error("Error updating profile picture:", err);
+                    res.status(500).json({
+                        message: "Error updating profile picture",
+                        error: err,
+                    });
+                }
+            }
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user!",
+                error: err,
+            });
+        });
+};
+
+exports.getUserInfo = (req, res) => {
+    User.findById(req.userId)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            } else {
+                res.status(200).json({
+                    message: "User retrieved successfully!",
+                    user: user,
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user!",
+                error: err,
+            });
+        });
+}
+
+exports.deleteUser = (req, res) => {
+    User.findByIdAndRemove(req.userId)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            }
+
+            res.status(200).json({
+                message: "User deleted successfully!",
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error deleting user!",
+            });
+        });
+}

@@ -52,7 +52,7 @@ exports.ensureAdmin = (req, res, next) => {
                 return res.status(404).json({
                     message: "User not found!",
                 });
-            } else if (user.status !== "ADMIN") {
+            } else if (user.role !== "ADMIN") {
                 return res.status(404).json({
                     message: "Access Denied! Admin Access Only!",
                 });
