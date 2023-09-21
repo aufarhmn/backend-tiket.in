@@ -27,6 +27,7 @@ app.get("/", (req, res) => {
   res.send("BACKEND TIKET.IN");
 });
 app.use("/user", require("./src/routes/user"));
+app.use("/admin", require("./src/routes/admin"));
 
 // ERROR HANDLING
 app.use((req, res, next) => {
