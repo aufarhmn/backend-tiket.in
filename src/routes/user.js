@@ -6,7 +6,10 @@ const { registerUser,
         loginUser,
         editProfilePhoto,
         editUser,
-        getUserInfo } = require('../controllers/user');
+        getUserInfo,
+        deleteUser,
+        forgotPassword,
+        activateNewPassword } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById } = require('../controllers/admin');
@@ -54,5 +57,20 @@ router.put('/', ensureAuthenticated, editUser);
 // DESC     : Get user data
 // RESPONSE : User json data
 router.get('/', ensureAuthenticated, getUserInfo);
+
+// PATH     : /user
+// DESC     : Delete user
+// RESPONSE : Message after deleting user
+router.delete('/', ensureAuthenticated, deleteUser);
+
+// PATH     : /user/forgot-password
+// DESC     : Forgot password
+// RESPONSE : Message after sending email
+router.post('/forgot-password', forgotPassword);
+
+// PATH     : /user/activate-new-password
+// DESC     : Activate new password
+// RESPONSE : Message after activating new password
+router.get('/reset-password', activateNewPassword);
 
 module.exports = router;

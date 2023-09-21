@@ -23,7 +23,7 @@ exports.registerUser = async (req, res) => {
         .then((user) => {
             if (user && user.email === email) {
                 return res.status(409).json({
-                    message: "Phone Number already registered!",
+                    message: "Email already registered!",
                 });
             } else {
                 const token = jwt.sign({ email }, process.env.JWT_SECRET, {
@@ -166,6 +166,107 @@ exports.loginUser = (req, res) => {
                 error: err,
             });
         });
+};
+
+exports.forgotPassword = (req, res) => {
+    const { email, password } = req.body;
+
+    User.findOne({ email: email })
+        .then((user) => {
+            if(!user){
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            }
+
+            bcrypt.hash(password, 10, (err, hashedPassword) => {
+                if (err) {
+                    return res.status(500).json({
+                        message: "Error occurred!",
+                        error: err,
+                    });
+                }
+
+                user.password = hashedPassword;
+                user.status = "SUBMITTED";
+                
+                user.save()
+                    .then((result) => {
+                        const token = jwt.sign(
+                            {
+                                userId: user._id,
+                            },
+                            process.env.JWT_SECRET,
+                            {
+                                expiresIn: "1h",
+                            }
+                        );
+
+                        transporter
+                            .sendMail({
+                                from: `tiket.in <${process.env.EMAIL}>`,
+                                to: email,
+                                subject: "tiket.in: Password Reset",
+                                html: `${process.env.CLIENT_URL}/user/reset-password?token=${token}`,
+                            })
+                            .then(() => {
+                                res.status(200).json({
+                                    message:
+                                        "Password reset successfully! Reset password email sent.",
+                                });
+                            })
+                            .catch((err) => {
+                                res.status(500).json({
+                                    message: "Error while sending email!",
+                                    error: err,
+                                });
+                            });
+                    })
+                    .catch((err) => {
+                        res.status(500).json({
+                            message: "Error updating password!",
+                            error: err,
+                        });
+                    });
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error occurred!",
+                error: err,
+            });
+        });
+};
+
+exports.activateNewPassword = (req, res) => {
+    const resetToken = req.query.token;
+    
+    jwt.verify(resetToken, process.env.JWT_SECRET, (err, decodedToken) => {
+        if(err){
+            return res.status(401).json({
+                message: "Invalid or expired reset token.",
+            });
+        }
+
+        User.findByIdAndUpdate(decodedToken.userId, { $set: { status: "VERIFIED" } }, { new: true })
+            .then((user) => {
+                if(!user){
+                    return res.status(404).json({
+                        message: "User not found!",
+                    });
+                }
+
+                res.status(200).json({
+                    message: "Reset password successfully!",
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error retrieving user!",
+                    error: err,
+                });
+            });
+    });
 };
 
 exports.editUser = (req, res) => {
@@ -317,6 +418,26 @@ exports.getUserInfo = (req, res) => {
             res.status(500).json({
                 message: "Error retrieving user!",
                 error: err,
+            });
+        });
+}
+
+exports.deleteUser = (req, res) => {
+    User.findByIdAndRemove(req.userId)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            }
+
+            res.status(200).json({
+                message: "User deleted successfully!",
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error deleting user!",
             });
         });
 }
