@@ -1,8 +1,10 @@
 const Event = require('../models/Event')
 
 exports.createEvent = (req, res)=>{
-    if(!req.body){
-        return res.status(400).json({message: "Please fill all required fields!"})
+    if(!req.body.eventName || !req.body.eventDate || !req.body.eventDescription || !req.body.eventPrice || !req.body.eventQuota){
+        console.log('makan nasi')
+       return res.status(400).json({message: "Please fill all required fields!"});
+       
     }
     const {eventName, eventDate, eventDescription, eventPrice, eventQuota} = req.body;
 
@@ -20,6 +22,7 @@ exports.createEvent = (req, res)=>{
             event: result
         })
     }).catch(err=>{
+  
         res.status(500).json({
             message: "Error creating event!",
             error: err
@@ -28,7 +31,8 @@ exports.createEvent = (req, res)=>{
 }
 
 exports.retrieveEvents = (req, res)=>{
-    Event.find().then(events=>{
+    
+    Event.find({}).then(events=>{
         res.status(200).json({
             message: "Events retrieved successfully!",
             events: events
@@ -43,37 +47,38 @@ exports.retrieveEvents = (req, res)=>{
 
 exports.retrieveEventById = (req, res)=>{
     const {id} = req.params;
-
-    Event.findById(id).then(event=>{
+    Event.findById( id).then(event=>{
+        console.log('bruh makan')
         if(!event){
            return res.status(404).json({
                 message: "Event not found!"
             })
 
+        }else{
+            res.status(200).json({
+                message: "Event retrieved successfully!",
+                event: event
+            })
         }
-        res.status(200).json({
-            message: "Event retrieved successfully!",
-            event: event
-        })
+       
     }).catch(err=>{
         res.status(500).json({
             message: "Error retrieving event!",
-            error: err
         })
     })
 }
 
 exports.updateEventById = (req, res)=>{
-    if(!req.body){
+    if(!req.body.eventName || !req.body.eventDate || !req.body.eventDescription || !req.body.eventPrice || !req.body.eventQuota){
         return res.status(400).json({message: "Please fill all required fields!"})
     }
     const {id} = req.params;
 
-    Event.findByIdAndUpdate(id,req.body).then(event=>{
+    Event.findByIdAndUpdate(id,req.body, {new : true}).then(event=>{
         if(!event){
             return res.status(404).json({message: "Event not found!"})
         }
-
+        console.log(event)
         res.status(200).json({
             message: "Event updated successfully!",
             event: event
@@ -81,7 +86,6 @@ exports.updateEventById = (req, res)=>{
     }).catch(err=>{
         res.status(500).json({
             message: "Error updating event!",
-            error: err
         })
     })
 
@@ -97,12 +101,11 @@ exports.deleteEventById = (req, res)=>{
 
         res.status(200).json({
             message: "Event deleted successfully!",
-            event: event
+  
         })
     }).catch(err=>{  
         res.status(500).json({
             message: "Error deleting event!",
-            error: err
         })
       })
 }
@@ -111,12 +114,10 @@ exports.deleteAllEvents = (req, res)=>{
     Event.deleteMany().then(result=>{
         res.status(200).json({
             message: "All events deleted successfully!",
-            result: result
         })
     }).catch(err=>{
         res.status(500).json({
             message: "Error deleting events!",
-            error: err
         })
     })
 }
