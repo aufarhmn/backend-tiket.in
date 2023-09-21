@@ -3,10 +3,12 @@ const router = express.Router();
 
 const { registerUser,
         activateUser,
-        loginUser } = require('../controllers/user');
+        loginUser,
+        editProfilePhoto } = require('../controllers/user');
 
-const { ensureAuthenticated,
-        ensureAdmin } = require('../middlewares/user');
+const { ensureAuthenticated } = require('../middlewares/user');
+
+const { uploadImage } = require('../middlewares/files');
 
 // PATH     : /user/register
 // DESC     : Register new user
@@ -22,5 +24,10 @@ router.get('/activate', activateUser);
 // DESC     : Login user
 // RESPONSE : Logged in user data
 router.post('/login', loginUser);
+
+// PATH     : /user/profile-photo
+// DESC     : Upload user profile photo
+// RESPONSE : Uploaded photo data   
+router.post('/profile-photo', ensureAuthenticated, uploadImage.single("profilePhoto"), editProfilePhoto);
 
 module.exports = router;
