@@ -19,7 +19,7 @@ exports.createEvent = (req, res)=>{
     event.save().then(result=>{
         res.status(201).json({
             message: "Event created successfully!",
-            event: result
+            event: result.content
         })
     }).catch(err=>{
   
