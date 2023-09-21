@@ -80,25 +80,37 @@ exports.retrieveEventById = (req, res) => {
 
 exports.updateEventById = (req, res) => {
     const { id } = req.params;
-    
-    if (
-        !req.body.eventName ||
-        !req.body.eventDate ||
-        !req.body.eventDescription ||
-        !req.body.eventPrice ||
-        !req.body.eventQuota
-    ) {
-        return res
-            .status(400)
-            .json({ message: "Please fill all required fields!" });
+
+    const allowedFields = [
+        "eventName",
+        "eventDate",
+        "eventDescription",
+        "eventPrice",
+        "eventQuota",
+    ];
+
+    const updatedFields = {};
+
+    for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+            updatedFields[field] = req.body[field];
+        }
     }
 
-    Event.findByIdAndUpdate(id, req.body, { new: true })
+    if (Object.keys(updatedFields).length === 0) {
+        return res
+            .status(400)
+            .json({ message: "No valid fields provided for update!" });
+    }
+
+    Event.findByIdAndUpdate(id, { $set: updatedFields }, { new: true })
         .then((event) => {
             if (!event) {
-                return res.status(404).json({ message: "Event not found!" });
+                return res.status(404).json({ 
+                    message: "Event not found!" 
+                });
             }
-            console.log(event);
+            
             res.status(200).json({
                 message: "Event updated successfully!",
                 event: event,
@@ -107,6 +119,7 @@ exports.updateEventById = (req, res) => {
         .catch((err) => {
             res.status(500).json({
                 message: "Error updating event!",
+                error: err,
             });
         });
 };

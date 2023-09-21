@@ -6,6 +6,9 @@ const { registerUser,
         loginUser,
         editProfilePhoto } = require('../controllers/user');
 
+const { retrieveEvents,
+        retrieveEventById } = require('../controllers/admin');
+
 const { ensureAuthenticated } = require('../middlewares/user');
 
 const { uploadImage } = require('../middlewares/files');
@@ -29,5 +32,15 @@ router.post('/login', loginUser);
 // DESC     : Upload user profile photo
 // RESPONSE : Uploaded photo data   
 router.post('/profile-photo', ensureAuthenticated, uploadImage.single("profilePhoto"), editProfilePhoto);
+
+// PATH     : /user/events
+// DESC     : Get all events
+// RESPONSE : Array containing all events
+router.get('/events', ensureAuthenticated, retrieveEvents);
+
+// PATH     : /user/event/:id
+// DESC     : Get single event by id
+// RESPONSE : Event json data
+router.get('/event/:id', ensureAuthenticated, retrieveEventById);
 
 module.exports = router;
