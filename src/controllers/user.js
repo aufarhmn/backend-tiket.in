@@ -168,6 +168,74 @@ exports.loginUser = (req, res) => {
         });
 };
 
+exports.editUser = (req, res) => {
+    const allowedFields = [
+        "name", 
+        "phoneNumber", 
+        "email"
+    ];
+
+    const updatedFields = {};
+
+    for (const field of allowedFields) {
+        if (req.body[field] !== undefined) {
+            updatedFields[field] = req.body[field];
+        }
+    }
+
+    if (Object.keys(updatedFields).length === 0) {
+        return res
+            .status(400)
+            .json({ message: "No valid fields provided for update!" });
+    }
+
+    if (updatedFields.email) {
+        User.find({ email: updatedFields.email })
+            .then((existingUser) => {
+                if (existingUser.length > 0) {
+                    return res.status(400).json({
+                        message: "Email is already in use by another user!",
+                    });
+                }
+                updateUser();
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error checking email existence!",
+                    error: err,
+                });
+            });
+    } else {
+        updateUser();
+    }
+
+    function updateUser() {
+        User.findByIdAndUpdate(
+            req.userId,
+            { $set: updatedFields },
+            { new: true }
+        )
+            .then((user) => {
+                if (!user) {
+                    return res
+                        .status(404)
+                        .json({ message: "User not found!" });
+                }
+
+                res.status(200).json({
+                    message: "User updated successfully!",
+                    user: user,
+                });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error updating user!",
+                    error: err,
+                });
+            });
+    }
+};
+
 exports.editProfilePhoto = (req, res) => {
     User.findById(req.userId)
         .then(async (user) => {

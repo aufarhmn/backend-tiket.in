@@ -4,7 +4,8 @@ const router = express.Router();
 const { registerUser,
         activateUser,
         loginUser,
-        editProfilePhoto } = require('../controllers/user');
+        editProfilePhoto,
+        editUser } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById } = require('../controllers/admin');
@@ -42,5 +43,10 @@ router.get('/events', ensureAuthenticated, retrieveEvents);
 // DESC     : Get single event by id
 // RESPONSE : Event json data
 router.get('/event/:id', ensureAuthenticated, retrieveEventById);
+
+// PATH     : /user
+// DESC     : Edit user data
+// RESPONSE : Edited user data
+router.put('/', ensureAuthenticated, editUser);
 
 module.exports = router;
