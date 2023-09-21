@@ -13,7 +13,7 @@ const { ensureAuthenticated,
 // RESPONSE : Registered user data and send email activation
 router.post('/register', registerUser);
 
-// PATH     : /user/activate/:token
+// PATH     : /user/activate
 // DESC     : Activate user account
 // RESPONSE : Activated user data
 router.get('/activate', activateUser);
