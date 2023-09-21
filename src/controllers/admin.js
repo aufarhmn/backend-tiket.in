@@ -1,4 +1,5 @@
 const Event = require("../models/Event");
+const User = require("../models/user");
 
 exports.createEvent = (req, res) => {
     const { eventName, eventDate, eventDescription, eventPrice, eventQuota } =
@@ -154,6 +155,30 @@ exports.deleteAllEvents = (req, res) => {
         .catch((err) => {
             res.status(500).json({
                 message: "Error deleting events!",
+            });
+        });
+};
+
+exports.getUserById = (req, res) => {
+    const { id } = req.params;
+
+    User.findById(id)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({ 
+                    message: "User not found!",
+                    user: user,
+                });
+            }
+
+            res.status(200).json({
+                message: "User retrieved successfully!",
+                user: user,
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user!",
             });
         });
 };

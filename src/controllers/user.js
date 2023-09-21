@@ -298,3 +298,25 @@ exports.editProfilePhoto = (req, res) => {
             });
         });
 };
+
+exports.getUserInfo = (req, res) => {
+    User.findById(req.userId)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({
+                    message: "User not found!",
+                });
+            } else {
+                res.status(200).json({
+                    message: "User retrieved successfully!",
+                    user: user,
+                });
+            }
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user!",
+                error: err,
+            });
+        });
+}

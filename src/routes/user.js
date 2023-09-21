@@ -5,7 +5,8 @@ const { registerUser,
         activateUser,
         loginUser,
         editProfilePhoto,
-        editUser } = require('../controllers/user');
+        editUser,
+        getUserInfo } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById } = require('../controllers/admin');
@@ -48,5 +49,10 @@ router.get('/event/:id', ensureAuthenticated, retrieveEventById);
 // DESC     : Edit user data
 // RESPONSE : Edited user data
 router.put('/', ensureAuthenticated, editUser);
+
+// PATH     : /user
+// DESC     : Get user data
+// RESPONSE : User json data
+router.get('/', ensureAuthenticated, getUserInfo);
 
 module.exports = router;

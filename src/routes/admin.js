@@ -7,7 +7,8 @@ const { ensureAuthenticated,
 const { createEvent,
         updateEventById,
         deleteEventById,
-        deleteAllEvents } = require('../controllers/admin');
+        deleteAllEvents,
+        getUserById } = require('../controllers/admin');
 
 // PATH     : /admin/event
 // DESC     : Create event by admin
@@ -28,5 +29,10 @@ router.delete('/event/:id', ensureAuthenticated, ensureAdmin, deleteEventById);
 // DESC     : Delete all events
 // RESPONSE : Message after deleting all events
 router.delete('/events', ensureAuthenticated, ensureAdmin, deleteAllEvents);
+
+// PATH     : /admin/user/:userId
+// DESC     : Get user by id
+// RESPONSE : User json data
+router.get('/user/:id', ensureAuthenticated, ensureAdmin, getUserById);
 
 module.exports = router;
