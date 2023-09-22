@@ -23,6 +23,7 @@
         "morgan": "~1.9.1",
         "multer": "^1.4.5-lts.1",
         "nodemailer": "^6.9.5",
+        "qr-image": "^3.2.0",
         "stream": "^0.0.2"
     },
     "devDependencies": {
