@@ -4,6 +4,9 @@ const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const { drive } = require("../config/drive");
 const { Readable } = require("stream");
+const UserEvent = require("../models/UserEvent");
+const qr = require("qr-image");
+const Event = require("../models/Event");
 
 // NODEMAILER
 const transporter = nodemailer.createTransport({
@@ -173,7 +176,7 @@ exports.forgotPassword = (req, res) => {
 
     User.findOne({ email: email })
         .then((user) => {
-            if(!user){
+            if (!user) {
                 return res.status(404).json({
                     message: "User not found!",
                 });
@@ -189,7 +192,7 @@ exports.forgotPassword = (req, res) => {
 
                 user.password = hashedPassword;
                 user.status = "SUBMITTED";
-                
+
                 user.save()
                     .then((result) => {
                         const token = jwt.sign(
@@ -240,17 +243,21 @@ exports.forgotPassword = (req, res) => {
 
 exports.activateNewPassword = (req, res) => {
     const resetToken = req.query.token;
-    
+
     jwt.verify(resetToken, process.env.JWT_SECRET, (err, decodedToken) => {
-        if(err){
+        if (err) {
             return res.status(401).json({
                 message: "Invalid or expired reset token.",
             });
         }
 
-        User.findByIdAndUpdate(decodedToken.userId, { $set: { status: "VERIFIED" } }, { new: true })
+        User.findByIdAndUpdate(
+            decodedToken.userId,
+            { $set: { status: "VERIFIED" } },
+            { new: true }
+        )
             .then((user) => {
-                if(!user){
+                if (!user) {
                     return res.status(404).json({
                         message: "User not found!",
                     });
@@ -270,11 +277,7 @@ exports.activateNewPassword = (req, res) => {
 };
 
 exports.editUser = (req, res) => {
-    const allowedFields = [
-        "name", 
-        "phoneNumber", 
-        "email"
-    ];
+    const allowedFields = ["name", "phoneNumber", "email"];
 
     const updatedFields = {};
 
@@ -318,9 +321,7 @@ exports.editUser = (req, res) => {
         )
             .then((user) => {
                 if (!user) {
-                    return res
-                        .status(404)
-                        .json({ message: "User not found!" });
+                    return res.status(404).json({ message: "User not found!" });
                 }
 
                 res.status(200).json({
@@ -420,7 +421,7 @@ exports.getUserInfo = (req, res) => {
                 error: err,
             });
         });
-}
+};
 
 exports.deleteUser = (req, res) => {
     User.findByIdAndRemove(req.userId)
@@ -440,4 +441,117 @@ exports.deleteUser = (req, res) => {
                 message: "Error deleting user!",
             });
         });
-}
+};
+
+exports.registerEvent = (req, res) => {
+    const eventId = req.query.eventId;
+
+    Event.findById(eventId).then((event) => {
+        if (!event) {
+            return res.status(404).json({
+                message: "Event not found!",
+            });
+        }
+
+        UserEvent.findOne({ userId: req.userId, eventId: eventId })
+            .then((userEvent) => {
+                if (userEvent) {
+                    return res.status(409).json({
+                        message: "User already registered to this event!",
+                    });
+                }
+
+                const code = Math.floor(100000 + Math.random() * 900000);
+
+                const newUserEvent = new UserEvent({
+                    userId: req.userId,
+                    eventId: eventId,
+                    code: code,
+                });
+
+                newUserEvent
+                    .save()
+                    .then(async (result) => {
+                        const qrCode = qr.image(code.toString(), {
+                            type: "png",
+                        });
+                        const qrCodeFileName = `${req.userId}-${eventId}-${code}.png`;
+
+                        const qrCodeUpload = drive.files.create({
+                            resource: {
+                                name: qrCodeFileName,
+                                parents: ["1EiTWDorO3LU5xbl6AxRsK2QGUrw-oiL2"],
+                            },
+                            media: {
+                                mimeType: "image/png",
+                                body: qrCode,
+                            },
+                            fields: "id",
+                        });
+
+                        const qrCodeFile = await qrCodeUpload;
+
+                        await drive.permissions.create({
+                            fileId: qrCodeFile.data.id,
+                            requestBody: {
+                                role: "reader",
+                                type: "anyone",
+                            },
+                        });
+
+                        result.qrCode = `https://drive.google.com/uc?export=view&id=${qrCodeFile.data.id}`;
+                        await result.save()
+                        .then((result) => {
+                            transporter
+                                .sendMail({
+                                    from: `tiket.in <${process.env.EMAIL}>`,
+                                    to: req.email,
+                                    subject: "tiket.in: Event Registration",
+                                    html: `
+                                            <div>
+                                                <h1> You have successfully registered to ${event.eventName}! </h1>
+                                                <p> Your registration code is ${code} and your QR Code is </p>
+                                                <img 
+                                                    src="${result.qrCode}"
+                                                    alt="QR Code"
+                                                />
+                                                <p> Please show this email to the event organizer to verify your registration </p>
+                                            </div>.
+                                            `,
+                                })
+                                .then(() => {
+                                    res.status(200).json({
+                                        message:
+                                            "User registered to event successfully!",
+                                        userEvent: result,
+                                    });
+                                })
+                                .catch((err) => {
+                                    res.status(500).json({
+                                        message: "Error sending email!",
+                                        error: err,
+                                    });
+                                });
+                        })
+                        .catch((err) => {
+                            res.status(500).json({
+                                message: "Error creating QR!",
+                                error: err,
+                            });
+                        });
+                    })
+                    .catch((err) => {
+                        res.status(500).json({
+                            message: "Error registering user to event!",
+                            error: err,
+                        });
+                    });
+            })
+            .catch((err) => {
+                res.status(500).json({
+                    message: "Error checking user registration!",
+                    error: err,
+                });
+            });
+    });
+};
