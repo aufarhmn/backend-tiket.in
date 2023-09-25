@@ -9,7 +9,8 @@ const { registerUser,
         getUserInfo,
         deleteUser,
         forgotPassword,
-        activateNewPassword } = require('../controllers/user');
+        activateNewPassword,
+        registerEvent } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById } = require('../controllers/admin');
@@ -72,5 +73,10 @@ router.post('/forgot-password', forgotPassword);
 // DESC     : Activate new password
 // RESPONSE : Message after activating new password
 router.get('/reset-password', activateNewPassword);
+
+// PATH     : /user/register-event
+// DESC     : Register event
+// RESPONSE : Message after registering event
+router.post('/register-event', ensureAuthenticated, registerEvent);
 
 module.exports = router;
