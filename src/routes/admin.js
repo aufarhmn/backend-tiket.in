@@ -10,6 +10,8 @@ const { createEvent,
         deleteAllEvents,
         getUserById } = require('../controllers/admin');
 
+const { userRegisteredOnEvent } = require('../controllers/event');
+
 // PATH     : /admin/event
 // DESC     : Create event by admin
 // RESPONSE : Message response after creating event
@@ -34,5 +36,10 @@ router.delete('/events', ensureAuthenticated, ensureAdmin, deleteAllEvents);
 // DESC     : Get user by id
 // RESPONSE : User json data
 router.get('/user/:id', ensureAuthenticated, ensureAdmin, getUserById);
+
+// PATH     : /admin/user/events
+// DESC     : Get all user events
+// RESPONSE : Array containing all user events
+router.get('/user/event/:eventId', ensureAuthenticated, ensureAdmin, userRegisteredOnEvent);
 
 module.exports = router;
