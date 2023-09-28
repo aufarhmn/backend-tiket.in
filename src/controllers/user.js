@@ -55,7 +55,59 @@ exports.registerUser = async (req, res) => {
                                     from: `tiket.in <${process.env.EMAIL}>`,
                                     to: email,
                                     subject: "tiket.in: Account Activation",
-                                    html: `${process.env.CLIENT_URL}/user/activate?token=${token}`,
+                                    html: `
+                                            <!DOCTYPE html>
+                                            <html lang="en">
+                                            <head>
+                                                <meta charset="UTF-8">
+                                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                                <title>tiket.in - Account Activation</title>
+                                                <style>
+                                                    body {
+                                                        font-family: Arial, sans-serif;
+                                                        background-color: #f5f5f5;
+                                                        text-align: center;
+                                                    }
+                                                    .container {
+                                                        background-color: #ffffff;
+                                                        padding: 40px;
+                                                        border-radius: 10px;
+                                                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                                                        margin: 20px auto;
+                                                        max-width: 700px;
+                                                    }
+                                                    h1 {
+                                                        color: black;
+                                                    }
+                                                    p {
+                                                        font-size: 16px;
+                                                    }
+                                                    a.button {
+                                                        display: inline-block;
+                                                        padding: 15px 30px;
+                                                        background-color: black;
+                                                        color: #ffffff;
+                                                        text-decoration: none;
+                                                        border-radius: 5px;
+                                                        font-size: 20px;
+                                                        font-weight: bold;
+                                                        transition: background-color 0.3s ease-in-out;
+                                                    }
+                                                    a.button:hover {
+                                                        background-color: gray;
+                                                    }
+                                                </style>
+                                            </head>
+                                            <body>
+                                                <div class="container">
+                                                    <h1>tiket.in: Account Activation</h1>
+                                                    <p>Thank you for signing up with tiket.in! <br>
+                                                        To activate your account, please click the button below:</p>
+                                                    <a class="button" href="${process.env.CLIENT_URL}/user/activate?token=${token}">Activate Your Account</a>
+                                                </div>
+                                            </body>
+                                            </html>
+                                    `,
                                 })
                                 .then(() => {
                                     res.status(201).json({
@@ -209,8 +261,60 @@ exports.forgotPassword = (req, res) => {
                             .sendMail({
                                 from: `tiket.in <${process.env.EMAIL}>`,
                                 to: email,
-                                subject: "tiket.in: Password Reset",
-                                html: `${process.env.CLIENT_URL}/user/reset-password?token=${token}`,
+                                subject: "tiket.in: Forgot Password",
+                                html: `
+                                        <!DOCTYPE html>
+                                        <html lang="en">
+                                        <head>
+                                            <meta charset="UTF-8">
+                                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                                            <title>tiket.in - Forgot Password</title>
+                                            <style>
+                                                body {
+                                                    font-family: Arial, sans-serif;
+                                                    background-color: #f5f5f5;
+                                                    text-align: center;
+                                                }
+                                                .container {
+                                                    background-color: #ffffff;
+                                                    padding: 40px;
+                                                    border-radius: 10px;
+                                                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+                                                    margin: 20px auto;
+                                                    max-width: 700px;
+                                                }
+                                                h1 {
+                                                    color: black;
+                                                }
+                                                p {
+                                                    font-size: 16px;
+                                                }
+                                                a.button {
+                                                    display: inline-block;
+                                                    padding: 15px 30px;
+                                                    background-color: black;
+                                                    color: #ffffff;
+                                                    text-decoration: none;
+                                                    border-radius: 5px;
+                                                    font-size: 20px;
+                                                    font-weight: bold;
+                                                    transition: background-color 0.3s ease-in-out;
+                                                }
+                                                a.button:hover {
+                                                    background-color: gray;
+                                                }
+                                            </style>
+                                        </head>
+                                        <body>
+                                            <div class="container">
+                                                <h1>tiket.in: Forgot Password</h1>
+                                                <p> This email was sent to confirm new password on tiket.in! <br>
+                                                    To use your new password, please click the button below:</p>
+                                                <a class="button" href=" ${process.env.CLIENT_URL}/user/reset-password?token=${token}">Activate Password</a>
+                                            </div>
+                                        </body>
+                                        </html>
+                                        `,
                             })
                             .then(() => {
                                 res.status(200).json({
@@ -500,14 +604,15 @@ exports.registerEvent = (req, res) => {
                         });
 
                         result.qrCode = `https://drive.google.com/uc?export=view&id=${qrCodeFile.data.id}`;
-                        await result.save()
-                        .then((result) => {
-                            transporter
-                                .sendMail({
-                                    from: `tiket.in <${process.env.EMAIL}>`,
-                                    to: req.email,
-                                    subject: "tiket.in: Event Registration",
-                                    html: `
+                        await result
+                            .save()
+                            .then((result) => {
+                                transporter
+                                    .sendMail({
+                                        from: `tiket.in <${process.env.EMAIL}>`,
+                                        to: req.email,
+                                        subject: "tiket.in: Event Registration",
+                                        html: `
                                             <div>
                                                 <h1> You have successfully registered to ${event.eventName}! </h1>
                                                 <p> Your registration code is ${code} and your QR Code is </p>
@@ -518,27 +623,27 @@ exports.registerEvent = (req, res) => {
                                                 <p> Please show this email to the event organizer to verify your registration </p>
                                             </div>.
                                             `,
-                                })
-                                .then(() => {
-                                    res.status(200).json({
-                                        message:
-                                            "User registered to event successfully!",
-                                        userEvent: result,
+                                    })
+                                    .then(() => {
+                                        res.status(200).json({
+                                            message:
+                                                "User registered to event successfully!",
+                                            userEvent: result,
+                                        });
+                                    })
+                                    .catch((err) => {
+                                        res.status(500).json({
+                                            message: "Error sending email!",
+                                            error: err,
+                                        });
                                     });
-                                })
-                                .catch((err) => {
-                                    res.status(500).json({
-                                        message: "Error sending email!",
-                                        error: err,
-                                    });
+                            })
+                            .catch((err) => {
+                                res.status(500).json({
+                                    message: "Error creating QR!",
+                                    error: err,
                                 });
-                        })
-                        .catch((err) => {
-                            res.status(500).json({
-                                message: "Error creating QR!",
-                                error: err,
                             });
-                        });
                     })
                     .catch((err) => {
                         res.status(500).json({
@@ -558,7 +663,7 @@ exports.registerEvent = (req, res) => {
 
 exports.uploadPayment = (req, res) => {
     const id = req.query.id;
-    
+
     UserEvent.findById(id)
         .then(async (result) => {
             let fileBuffer = Readable.from([req.file.buffer]);
