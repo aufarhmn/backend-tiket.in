@@ -1,5 +1,5 @@
 const Event = require("../models/Event");
-const User = require("../models/user");
+const User = require("../models/User");
 
 exports.createEvent = (req, res) => {
     const { eventName, eventDate, eventDescription, eventPrice, eventQuota } =
