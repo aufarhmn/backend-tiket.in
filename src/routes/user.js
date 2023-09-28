@@ -10,7 +10,8 @@ const { registerUser,
         deleteUser,
         forgotPassword,
         activateNewPassword,
-        registerEvent } = require('../controllers/user');
+        registerEvent,
+        uploadPayment } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById } = require('../controllers/admin');
@@ -78,5 +79,10 @@ router.get('/reset-password', activateNewPassword);
 // DESC     : Register event
 // RESPONSE : Message after registering event
 router.post('/register-event', ensureAuthenticated, registerEvent);
+
+// PATH     : /user/upload-payment
+// DESC     : Upload payment
+// RESPONSE : Message after uploading payment
+router.post('/upload-payment', ensureAuthenticated, uploadImage.single("paymentFile"), uploadPayment);
 
 module.exports = router;
