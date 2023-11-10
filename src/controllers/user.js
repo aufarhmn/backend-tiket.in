@@ -205,9 +205,12 @@ exports.loginUser = (req, res) => {
                         }
                     );
 
-                    return res.status(200).cookie("Auth", token).json({
-                        message: "Authentication successful!",
-                    });
+                    return res
+                        .status(200)
+                        .cookie("Auth", token, { sameSite: "None" })
+                        .json({
+                            message: "Authentication successful!",
+                        });
                 }
 
                 res.status(401).json({
