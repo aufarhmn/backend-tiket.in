@@ -210,6 +210,7 @@ exports.loginUser = (req, res) => {
                         .cookie("Auth", token, { sameSite: "None" })
                         .json({
                             message: "Authentication successful!",
+                            token: token,
                         });
                 }
 
