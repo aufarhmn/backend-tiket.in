@@ -43,12 +43,12 @@ router.post('/profile-photo', ensureAuthenticated, uploadImage.single("profilePh
 // PATH     : /user/events
 // DESC     : Get all events
 // RESPONSE : Array containing all events
-router.get('/events', ensureAuthenticated, retrieveEvents);
+router.get('/events', retrieveEvents);
 
 // PATH     : /user/event/:id
 // DESC     : Get single event by id
 // RESPONSE : Event json data
-router.get('/event/:id', ensureAuthenticated, retrieveEventById);
+router.get('/event/:id', retrieveEventById);
 
 // PATH     : /user
 // DESC     : Edit user data
