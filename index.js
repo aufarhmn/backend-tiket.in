@@ -20,10 +20,19 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 // CORS 
-app.use(cors({
-  origin: 'http://localhost:3000',
+const allowedOrigins = ['localhost', 'postman-origin'];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, true);
+    }
+  },
   credentials: true,
-}));
+  methods: ["GET", "POST", "PUT", "DELETE"],
+};
+app.use(cors(corsOptions));
 
 // ROUTES
 app.get("/", (req, res) => {
