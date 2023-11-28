@@ -624,7 +624,7 @@ exports.registerEvent = (req, res) => {
                                                     src="${result.qrCode}"
                                                     alt="QR Code"
                                                 />
-                                                <p> Please show this email to the event organizer to verify your registration </p>
+                                                <p> Your registration is not complete until you upload payment on our website </p>
                                             </div>.
                                             `,
                                     })
@@ -708,10 +708,33 @@ exports.uploadPayment = (req, res) => {
 
                     result.paymentFile = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
 
-                    await result.save();
-                    res.status(200).json({
-                        message: "Payment updated successfully!",
-                        paymentFile: result.paymentFile,
+                    await result.save()
+
+                    .then((result) =>{
+                        transporter
+                            .sendMail({
+                                from: `tiket.in <${process.env.EMAIL}>`,
+                                to: req.email,
+                                subject: "tiket.in: Payment Successfull",
+                                html: `
+                                    <div>
+                                        <h1> Your payment is sucessfull! </h1>
+                                        <p> You can now use QR Code that we've sent before </p>
+                                    </div>.
+                                    `,
+                            })
+                        .then(() => {
+                            res.status(200).json({
+                                message: "Payment updated successfully!",
+                                paymentFile: result.paymentFile,
+                            })
+                        });
+                    })
+                    .catch((err) => {
+                        res.status(500).json({
+                            message: "Error updating payment!",
+                            error: err,
+                        });
                     });
                 } catch (err) {
                     console.error("Error updating payment:", err);
