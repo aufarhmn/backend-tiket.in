@@ -20,7 +20,10 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 
 // CORS 
-app.use(cors({ origin: '*' }));
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
 
 // ROUTES
 app.get("/", (req, res) => {
