@@ -10,7 +10,8 @@ const { createEvent,
         deleteAllEvents,
         getUserById } = require('../controllers/admin');
 
-const { userRegisteredOnEvent } = require('../controllers/event');
+const { userRegisteredOnEvent,
+        userRegistered } = require('../controllers/event');
 
 // PATH     : /admin/event
 // DESC     : Create event by admin
@@ -41,5 +42,10 @@ router.get('/user/:id', ensureAuthenticated, ensureAdmin, getUserById);
 // DESC     : Get all user events
 // RESPONSE : Array containing all user events
 router.get('/user/event/:eventId', ensureAuthenticated, ensureAdmin, userRegisteredOnEvent);
+
+// PATH     : /admin/user/events
+// DESC     : Get all user events
+// RESPONSE : Array containing all user events
+router.get('/events', ensureAuthenticated, ensureAdmin, userRegistered);
 
 module.exports = router;

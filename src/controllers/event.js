@@ -53,3 +53,28 @@ exports.userRegisteredOnEvent = (req, res) => {
             });
         });
 };
+
+exports.userRegistered = (req, res) => {
+    UserEvent.find()
+        .select("-_id userId eventId code paymentFile qrCode status")
+        .populate("userId", "name email")
+        .populate("eventId", "eventName eventDescription")
+        .then((userEvents) => {
+            if (userEvents.length === 0) {
+                return res.status(404).json({
+                    message: "No user events found!",
+                });
+            }
+
+            res.status(200).json({
+                message: "User events retrieved successfully!",
+                userEvents: userEvents,
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user events!",
+                error: err,
+            });
+        });
+}
