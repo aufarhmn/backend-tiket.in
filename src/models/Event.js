@@ -22,6 +22,9 @@ const EventSchema = new mongoose.Schema(
             type: Number,
             required: true
         },
+        eventPhoto: {
+            type: String,
+        },
     },
 );
 

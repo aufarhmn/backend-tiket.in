@@ -78,3 +78,77 @@ exports.userRegistered = (req, res) => {
             });
         });
 }
+
+exports.uploadEventImage = (req, res) => {
+    const id = req.query.id;
+
+    Event.findById(id)
+        .then(async (result) => {
+            let fileBuffer = Readable.from([req.file.buffer]);
+
+            if (!result) {
+                return res.status(404).json({
+                    message: "result not found!",
+                });
+            } else if (!req.file) {
+                return res.status(400).json({
+                    message: "No file uploaded!",
+                });
+            } else {
+                try {
+                    const fileMetadata = {
+                        name: id + "-" + Date.now(),
+                        parents: ["1jGDte8_oUWLYy25UXX2vpTrXMYmgPBZC"],
+                    };
+
+                    const media = {
+                        mimeType: "image/jpeg" || "image/png" || "image/jpg",
+                        body: fileBuffer,
+                    };
+
+                    const response = await drive.files.create({
+                        resource: fileMetadata,
+                        media: media,
+                        fields: "id",
+                    });
+
+                    await drive.permissions.create({
+                        fileId: response.data.id,
+                        requestBody: {
+                            role: "reader",
+                            type: "anyone",
+                        },
+                    });
+
+                    result.eventPhoto = `https://drive.google.com/uc?export=view&id=${response.data.id}`;
+
+                    await result.save()
+
+                    .then((result) =>{
+                        res.status(200).json({
+                            message: "Photo updated successfully!",
+                            paymentFile: result.paymentFile,
+                        });
+                    })
+                    .catch((err) => {
+                        res.status(500).json({
+                            message: "Error updating photo!",
+                            error: err,
+                        });
+                    });
+                } catch (err) {
+                    console.error("Error updating photo:", err);
+                    res.status(500).json({
+                        message: "Error updating photo",
+                        error: err,
+                    });
+                }
+            }
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving event!",
+                error: err,
+            });
+        });
+};

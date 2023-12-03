@@ -4,6 +4,8 @@ const router = express.Router();
 const { ensureAuthenticated,
         ensureAdmin } = require('../middlewares/user');
 
+const { uploadImage } = require('../middlewares/files');
+
 const { createEvent,
         updateEventById,
         deleteEventById,
@@ -11,7 +13,8 @@ const { createEvent,
         getUserById } = require('../controllers/admin');
 
 const { userRegisteredOnEvent,
-        userRegistered } = require('../controllers/event');
+        userRegistered,
+        uploadEventImage } = require('../controllers/event');
 
 // PATH     : /admin/event
 // DESC     : Create event by admin
@@ -47,5 +50,10 @@ router.get('/user/event/:eventId', ensureAuthenticated, ensureAdmin, userRegiste
 // DESC     : Get all user events
 // RESPONSE : Array containing all user events
 router.get('/events', ensureAuthenticated, ensureAdmin, userRegistered);
+
+// PATH     : /admin/event/image
+// DESC     : Upload event image
+// RESPONSE : Uploaded image data
+router.post('/event/image', ensureAuthenticated, ensureAdmin, uploadImage.single("eventImage"), uploadEventImage);
 
 module.exports = router;
