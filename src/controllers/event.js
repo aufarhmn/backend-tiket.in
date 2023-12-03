@@ -1,5 +1,7 @@
 const UserEvent = require("../models/UserEvent");
 const Event = require("../models/Event");
+const { drive } = require("../config/drive");
+const { Readable } = require("stream");
 
 exports.userRegisteredOnEvent = (req, res) => {
     const eventId = req.params.eventId;
@@ -80,7 +82,7 @@ exports.userRegistered = (req, res) => {
 }
 
 exports.uploadEventImage = (req, res) => {
-    const id = req.query.id;
+    const id = req.query.eventId;
 
     Event.findById(id)
         .then(async (result) => {
