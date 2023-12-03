@@ -30,7 +30,7 @@ exports.createEvent = (req, res) => {
         .then((result) => {
             res.status(201).json({
                 message: "Event created successfully!",
-                event: result.content,
+                event: result,
             });
         })
         .catch((err) => {
