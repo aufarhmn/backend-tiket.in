@@ -788,10 +788,67 @@ exports.uploadPayment = (req, res) => {
                                 to: req.email,
                                 subject: "tiket.in: Payment Successfull",
                                 html: `
+                                    <div
+                                    style="
+                                        font-family: 'Arial', 'Helvetica', 'sans-serif';
+                                        background-color: #f0f0f0;
+                                        padding: 50px 0;
+                                    "
+                                    >
                                     <div>
-                                        <h1> Your payment is sucessfull! </h1>
-                                        <p> You can now use QR Code that we've sent before </p>
-                                    </div>.
+                                    </div>
+                                    <div
+                                        style="
+                                            background: #000842;
+                                            max-width: 500px;
+                                            height: auto;
+                                            margin: auto;
+                                            padding: 45px;
+                                            border-radius: 29px;
+                                            overflow-wrap: break-word;
+                                        "
+                                    >
+                                        <h1
+                                            style="
+                                                font-style: normal;
+                                                font-weight: 900;
+                                                font-size: 28px;
+                                                color: white;
+                                                text-align: center;
+                                                text-transform: uppercase;
+                                            "
+                                        >
+                                            REGISTRATION COMPLETED
+                                        </h1>
+                                        <p
+                                            style="
+                                                font-style: normal;
+                                                margin-top: 60;
+                                                text-align: center;
+                                                color: #ffffff;
+                                                margin-bottom: 20;
+                                            "
+                                        >
+                                            <b>Hey There!</b> <br />
+                                            Your registration is complete! <br />
+                                        </p>
+                                        <div
+                                            style="
+                                                font-style: normal;
+                                                margin-top: 60;
+                                                text-align: center;
+                                                color: #ffffff;
+                                                margin-bottom: 20;
+                                            "
+                                        >
+                                            Your Code and QR Code is now valid!
+                                        </div>
+                                    </div>
+                                    <p style="text-align: center; color: #818181; margin-top: 25px">
+                                        Email ini dikirim oleh
+                                        <span style="font-weight: bold">ticket.in</span>
+                                    </p>
+                                    </div>
                                     `,
                             })
                         .then(() => {
