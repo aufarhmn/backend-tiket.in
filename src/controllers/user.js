@@ -216,6 +216,7 @@ exports.loginUser = (req, res) => {
                             email: user.email,
                             phoneNumber: user.phoneNumber,
                             status: user.status,
+                            role: user.role,
                             profilePhoto: user.profilePhoto,
                         });
                 }
