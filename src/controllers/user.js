@@ -211,6 +211,12 @@ exports.loginUser = (req, res) => {
                         .json({
                             message: "Authentication successful!",
                             token: token,
+                            id: user._id,
+                            name: user.name,
+                            email: user.email,
+                            phoneNumber: user.phoneNumber,
+                            status: user.status,
+                            profilePhoto: user.profilePhoto,
                         });
                 }
 
