@@ -14,7 +14,8 @@ const { registerUser,
         uploadPayment } = require('../controllers/user');
 
 const { retrieveEvents,
-        retrieveEventById } = require('../controllers/admin');
+        retrieveEventById,
+        requestAdmin } = require('../controllers/admin');
 
 const { ensureAuthenticated } = require('../middlewares/user');
 
@@ -84,5 +85,10 @@ router.post('/register-event', ensureAuthenticated, registerEvent);
 // DESC     : Upload payment
 // RESPONSE : Message after uploading payment
 router.post('/upload-payment', ensureAuthenticated, uploadImage.single("paymentFile"), uploadPayment);
+
+// PATH     : /user/request-admin
+// DESC     : Request admin
+// RESPONSE : Message after sending request
+router.post('/request-admin', ensureAuthenticated, requestAdmin);
 
 module.exports = router;

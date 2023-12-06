@@ -182,3 +182,44 @@ exports.getUserById = (req, res) => {
             });
         });
 };
+
+exports.requestAdmin = (req, res) => {
+    const { password } = req.body;
+
+    User.findById(req.userId)
+        .then((user) => {
+            if (!user) {
+                return res.status(404).json({ 
+                    message: "User not found!",
+                    user: user,
+                });
+            } else if (user.role === "ADMIN") {
+                return res.status(400).json({
+                    message: "User is already an admin!",
+                });
+            } else if (password !== 't1k3t1n') {
+                return res.status(400).json({
+                    message: "Password is incorrect!",
+                });
+            }
+
+            user.role = "ADMIN";
+            user.save()
+                .then((result) => {
+                    res.status(200).json({
+                        message: "User is now an admin!",
+                        user: result,
+                    });
+                })
+                .catch((err) => {
+                    res.status(500).json({
+                        message: "Error updating user!",
+                    });
+                });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user!",
+            });
+        });
+}
