@@ -759,3 +759,21 @@ exports.uploadPayment = (req, res) => {
             });
         });
 };
+
+exports.getUserEvents = (req, res) => {
+    UserEvent.find({ userId: req.userId })
+        .populate("userId", "-password")
+        .populate("eventId")
+        .then((result) => {
+            res.status(200).json({
+                message: "User events retrieved successfully!",
+                userEvents: result,
+            });
+        })
+        .catch((err) => {
+            res.status(500).json({
+                message: "Error retrieving user events!",
+                error: err,
+            });
+        });
+};

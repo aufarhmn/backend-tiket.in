@@ -11,7 +11,8 @@ const { registerUser,
         forgotPassword,
         activateNewPassword,
         registerEvent,
-        uploadPayment } = require('../controllers/user');
+        uploadPayment,
+        getUserEvents } = require('../controllers/user');
 
 const { retrieveEvents,
         retrieveEventById,
@@ -90,5 +91,10 @@ router.post('/upload-payment', ensureAuthenticated, uploadImage.single("paymentF
 // DESC     : Request admin
 // RESPONSE : Message after sending request
 router.post('/request-admin', ensureAuthenticated, requestAdmin);
+
+// PATH     : /user/events
+// DESC     : Get all user events
+// RESPONSE : Array containing all user events
+router.get('/user-events', ensureAuthenticated, getUserEvents);
 
 module.exports = router;
