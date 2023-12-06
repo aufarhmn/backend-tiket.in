@@ -624,15 +624,79 @@ exports.registerEvent = (req, res) => {
                                         to: req.email,
                                         subject: "tiket.in: Event Registration",
                                         html: `
+                                            <div
+                                            style="
+                                                font-family: 'Arial', 'Helvetica', 'sans-serif';
+                                                background-color: #f0f0f0;
+                                                padding: 50px 0;
+                                            "
+                                            >
                                             <div>
-                                                <h1> You have successfully registered to ${event.eventName}! </h1>
-                                                <p> Your registration code is ${code} and your QR Code is </p>
-                                                <img 
-                                                    src="${result.qrCode}"
-                                                    alt="QR Code"
-                                                />
-                                                <p> Your registration is not complete until you upload payment on our website </p>
-                                            </div>.
+                                            </div>
+                                            <div
+                                                style="
+                                                    background: #000842;
+                                                    max-width: 500px;
+                                                    height: auto;
+                                                    margin: auto;
+                                                    padding: 45px;
+                                                    border-radius: 29px;
+                                                    overflow-wrap: break-word;
+                                                "
+                                            >
+                                                <h1
+                                                    style="
+                                                        font-style: normal;
+                                                        font-weight: 900;
+                                                        font-size: 28px;
+                                                        color: white;
+                                                        text-align: center;
+                                                        text-transform: uppercase;
+                                                    "
+                                                >
+                                                    SUCCESSFUL REGISTRATION
+                                                </h1>
+                                                <p
+                                                    style="
+                                                        font-style: normal;
+                                                        margin-top: 60;
+                                                        text-align: center;
+                                                        color: #ffffff;
+                                                        margin-bottom: 20;
+                                                    "
+                                                >
+                                                    <b>Hey There!</b> <br />
+                                                    Your registration for ${event.eventName} is complete! <br />
+                                                    Your code is ${code} and Here is your QR Code
+                                                </p>
+                                                <div
+                                                    style="
+                                                        text-align: center;
+                                                        margin-bottom: 20;
+                                                    "
+                                                    >
+                                                    <img 
+                                                        src="${result.qrCode}"
+                                                        alt="QR Code"
+                                                    />
+                                                </div>
+                                                <div
+                                                    style="
+                                                        font-style: normal;
+                                                        margin-top: 60;
+                                                        text-align: center;
+                                                        color: #ffffff;
+                                                        margin-bottom: 20;
+                                                    "
+                                                >
+                                                    This Code and QR Code not valid until you pay the registration fee
+                                                </div>
+                                            </div>
+                                            <p style="text-align: center; color: #818181; margin-top: 25px">
+                                                Email ini dikirim oleh
+                                                <span style="font-weight: bold">ticket.in</span>
+                                            </p>
+                                            </div>
                                             `,
                                     })
                                     .then(() => {
