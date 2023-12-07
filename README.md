@@ -43,12 +43,13 @@ For Database Schema, please refer to the following Entity Relationship Diagram:
 | Content | Link |
 | --- | --- |
 | FrontEnd Deployed | [https://ticketin.vertech.id/](https://ticketin.vertech.id/) |
+| FrontEnd Deployed (Backup) | [https://frontend-ticket-in-1344.vercel.app/](https://frontend-ticket-in-1344.vercel.app/) |
 | BackEnd Deployed | [https://backend-tiket-in.vercel.app](https://backend-tiket-in.vercel.app) |
-| FrontEnd Github | [https://github.com/DiftaFitrahul/frontend-ticket.in](https://github.com/DiftaFitrahul/frontend-ticket.in) |
+| Frontend Github | [https://github.com/DiftaFitrahul/frontend-ticket.in](https://github.com/DiftaFitrahul/frontend-ticket.in) |
 | Postman API | [Backend API Dokumentation](https://www.postman.com/aufarhmn/workspace/tiket-in/collection/24138340-4086676b-711e-4de4-a817-42f1d31bb838?action=share&creator=24138340) |
 | Figma | [Figma Ticket.In](https://www.figma.com/file/er08vyAtQ0sa2jUPql4tzw/Website-Event-Ticketing-(Community)?type=design&node-id=304%3A3&mode=design&t=VYVMMGikEEyarKRk-1) |
-| Slide PPT | |
-| Video | |
+| Slide PPT | [PPT Ticket.in](https://www.canva.com/design/DAFznwImXbU/CZBHuyrEJPlXawNl3lcoPQ/edit?utm_content=DAFznwImXbU&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton) |
+| Video | [Youtube Video](https://youtu.be/zofWNYYstts?si=wmX5I8gVmvmzAy1s) |
 
 ## License
 
